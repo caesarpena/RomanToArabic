@@ -1,0 +1,131 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+
+namespace Rextester
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            Convert("CXXXV");
+        }
+        
+        static void Convert(string par){
+    
+            //roman dictionary
+            string [] roman = {"I", "V", "X", "L", "C", "D", "M"};
+            
+            //arabic dictiorary
+            string [] arabic = {"1", "5", "10", "50", "100", "500", "1000"};
+            
+            //array of arrays containing the 2 dictionaries with the basic convertion in the same [][n] position
+            string [][] ListArr = {roman, arabic};
+            
+            //List of ints
+            List<int> _intsList = new List<int>();
+            
+            //Final Array
+            int [] _finalArr=null;
+            
+            // final result
+            int total = 0;
+
+   
+            
+            //create regex patter to satisfy the roman numbers rules
+            string pattern = "^M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$";
+            
+            /*
+                beginning of string 
+
+                M{0,3} thousands - 0 to 4 M's Check if the number if M's is not higher than 3 because
+                if number of M's is higher than 3 the number can be expressed with the notation that
+                includes a mark at the top of the letter
+
+                (CM|CD|D?C{0,3}) hundreds - 900 (CM), 400 (CD), 0-300 (0 to 3 C's), or 500-800 (D, followed
+                by 0 to 3 C's)
+
+                (XC|XL|L?X{0,3}) tens - 90 (XC), 40 (XL), 0-30 (0 to 0 X's), or 50-80 (L, followed by 0 ti 3 X's)
+
+                (IX|IV|V?I{0,3}) ones - 9 (IX), 4 (IV), 0-3 (0 to 3 I's) or 5-8 (V followed by 0 to 3 I's)
+
+                $ end of string
+
+            */
+
+            //validate par with regext pattern
+            if(Regex.IsMatch(par, pattern)){
+                
+            //loop the given parameter by chars
+            foreach(char s in par){
+
+                //test chars - works
+                //Console.WriteLine(s);
+
+                //loop the roman dictionary
+                for(int i=0; i<ListArr[0].Length; i++){
+
+                    //test ListArr Loop - print array 4 times - works
+                    //Console.WriteLine(ListArr[0][i]);
+
+                    //Match the par values with the roman values
+                    if(s.ToString().Equals(ListArr[0][i])){
+
+                        //test convertion - print equivalent arabic values - expected (10 10 1 1) - Works
+                        //Console.WriteLine(ListArr[1][i]);
+                        // convert the arabic values in the dictionary to int and add to a list of ints.
+                        //just create the list because its easier to add values in this context
+                        _intsList.Add(Int32.Parse(ListArr[1][i]));
+
+                    }
+                }
+
+            }
+
+            //convert the list to array
+            _finalArr = _intsList.ToArray();
+                
+            //loop the new arra until -1 so i dont get an outbound exeption
+            for(int k =0; k<_finalArr.Length-1; k++){
+
+                //check if the next value its smaller than the current value
+                //if true the current (smaller value) has to be deducted off the next(higher value)
+                if(_finalArr[k]<_finalArr[k+1]){
+
+                    //test if the validation is correct - tested with IX - expected '1<10' - Works
+                    //test if the validation is correct - tested with XX and XVI - expected 'blank' - Works
+                    //Console.WriteLine(_finalArr[k]+"<"+_finalArr[k+1]);
+
+                    //to do after validation
+                    //make the current postion equal to the deduction of the next value and current value
+                    
+                    _finalArr[k] = _finalArr[k+1] - _finalArr[k];
+                    
+                    //make the next value equals to 0 so at the end i dont add an already processed number
+                    _finalArr[k+1] = 0;
+                    
+                    //jump to the next set of values               
+                    k+=2;
+                }
+            }
+
+            foreach(int val in _finalArr){
+                 total+=val;
+            }
+            //test if result is correct - tested with XVI - expected '16' - Works
+            //test if result is correct - tested with XIX - expected '19' - Works
+            //test if result is correct - tested with XIX - expected '19' - Works
+            //test if result is correct - tested with MCMLXIX - expected '11969' - Works
+            //test if result is correct - tested with XXXX - expected 'invalid' - received 40 - Fail
+            //need to validate if the given par is a valid value before doing anything       
+
+                Console.WriteLine(total);
+            }else
+                Console.WriteLine("Invalid Value");
+                   //test if result is correct - tested with XXXX - expected 'invalid' - invalid - Works
+                   //test if result is correct - tested with VXI - expected 'invalid' - invalid - Works
+        }
+    }
+}
